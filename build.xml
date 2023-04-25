@@ -1,0 +1,46 @@
+<project name="Mandelbrot" default="jar" basedir=".">
+    <description>Mandelbrot</description>
+
+    <property environment="env"/>
+    <property name="src" location="src"/>
+    <property name="build" location="build"/>
+    <property name="dist" location="."/>
+    <property name="jarname" value="mandelbrot.jar"/>
+
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="${build}"/>
+    </target>
+
+    <target name="tidy" description="Clean up, but leave the JAR file">
+        <delete dir="${build}"/>
+    </target>
+
+    <target name="clean" description="Clean up">
+        <delete dir="${build}"/>
+        <delete file="${dist}/${jarname}"/>
+    </target>
+
+    <target name="compile" depends="clean,init" description="Compile source files">
+        <javac includeantruntime="false" srcdir="${src}" destdir="${build}" modulepath="${env.PATH_TO_JAVAFX}">
+            <compilerarg line="--add-modules ALL-MODULE-PATH"/>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile" description="Build the JAR file">
+        <jar jarfile="${dist}/${jarname}">
+            <fileset dir="${build}"/>
+
+            <manifest>
+                <attribute name="Main-Class" value="Mandelbrot"/>
+                <attribute name="Multi-Release" value="true"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run" depends="jar" description="Build execute the JAR">
+        <java jar="${dist}/${jarname}" modulepath="${env.PATH_TO_JAVAFX}" fork="true">
+            <jvmarg line="--add-modules ALL-MODULE-PATH"/>
+        </java>
+    </target>
+</project>
