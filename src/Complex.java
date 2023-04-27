@@ -14,9 +14,19 @@ public class Complex
 		this.b = b;
 	}
 	
+	public Complex setReal(double real)
+	{
+		return new Complex(real, b);
+	}
+	
 	public double getReal()
 	{
 		return a;
+	}
+	
+	public Complex setImaginary(double imaginary)
+	{
+		return new Complex(a, imaginary);
 	}
 	
 	public double getImaginary()
@@ -38,5 +48,25 @@ public class Complex
 		double imaginary = b + c.getImaginary();
 		
 		return new Complex(real, imaginary);
+	}
+	
+	public Complex addReal(double real)
+	{
+		return new Complex((a + real), b);
+	}
+	
+	public Complex addImaginary(double imaginary)
+	{
+		return new Complex(a, (b + imaginary));
+	}
+	
+	public double magnitude()
+	{
+		return Math.sqrt((a * a) + (b * b));
+	}
+	
+	public double magnitudeSquared()
+	{
+		return (a * a) + (b * b);
 	}
 }

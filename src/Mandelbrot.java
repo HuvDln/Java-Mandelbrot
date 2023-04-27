@@ -5,15 +5,18 @@ import javafx.stage.Stage;
 
 public class Mandelbrot extends Application
 {
+	private static int WIDTH = 1600;
+	private static int HEIGHT = 960;
+	
 	public void start(Stage primaryStage)
 	{
 		primaryStage.setTitle("The Mandelbrot Set");
 		
 		var pane = new Pane();
-		var fractalView = new FractalView();
+		var fractalView = new FractalView(WIDTH, HEIGHT, 70);
 		pane.getChildren().add(fractalView);
 		
-		primaryStage.setScene(new Scene(pane, 800, 600));
+		primaryStage.setScene(new Scene(pane, WIDTH, HEIGHT));
         primaryStage.show();
 	}
 	
