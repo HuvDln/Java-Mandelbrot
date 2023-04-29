@@ -50,6 +50,14 @@ public class Complex
 		return new Complex(real, imaginary);
 	}
 	
+	public Complex subtract(Complex c)
+	{
+		double real = a - c.getReal();
+		double imaginary = b - c.getImaginary();
+		
+		return new Complex(real, imaginary);
+	}
+	
 	public Complex addReal(double real)
 	{
 		return new Complex((a + real), b);

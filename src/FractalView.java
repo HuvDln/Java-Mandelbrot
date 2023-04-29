@@ -4,18 +4,26 @@ import javafx.scene.paint.Color;
 
 public class FractalView extends ImageView
 {	
-	private int maxIterations;
-
-	public FractalView(int width, int height, int maxIterations)
+	private int width, height;
+	private Complex topLeft, bottomRight;
+	
+	public FractalView(int width, int height, Complex topLeft, Complex bottomRight)
 	{
-		this.maxIterations = maxIterations;
-		
+		this.width = width;
+		this.height = height;
+		this.topLeft = topLeft;
+		this.bottomRight = bottomRight;
+	}
+	
+	public final void draw(final int maxIterations)
+	{
 		var image = new WritableImage(width, height);
 		var pixelWriter = image.getPixelWriter();
 		
-		var cxStep = 3.4 / width;
-		var cyStep = -2.4 / height;
-		var c = new Complex(-2.2, 1.2);
+		var range = topLeft.subtract(bottomRight);
+		var cxStep =  Math.abs(range.getReal() / width);
+		var cyStep = -Math.abs(range.getImaginary() / height);
+		var c = new Complex(topLeft.getReal(), topLeft.getImaginary());
 		for (int y = 0; y < height; y++)
 		{
 			for (int x = 0; x < width; x++)
@@ -28,20 +36,20 @@ public class FractalView extends ImageView
 					iterations--;
 				}
 				
-				var colour = chooseColour(iterations);
+				var colour = chooseColour(iterations, maxIterations);
 				pixelWriter.setColor(x, y, colour);
 				
 				c = c.addReal(cxStep);
 			}
 			
-			c = c.setReal(-2.2);
+			c = c.setReal(topLeft.getReal());
 			c = c.addImaginary(cyStep);
 		}
 		
 		setImage(image);
 	}
 	
-	private final Color chooseColour(final int iterations)
+	private final Color chooseColour(final int iterations, final int maxIterations)
     {
         final var t = (double)iterations / (double)maxIterations;
 
