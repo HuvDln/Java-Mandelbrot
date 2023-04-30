@@ -16,6 +16,7 @@ public class Complex
 	
 	public Complex setReal(double real)
 	{
+		a = real;
 		return new Complex(real, b);
 	}
 	
@@ -26,6 +27,7 @@ public class Complex
 	
 	public Complex setImaginary(double imaginary)
 	{
+		b = imaginary;
 		return new Complex(a, imaginary);
 	}
 	
@@ -76,5 +78,10 @@ public class Complex
 	public double magnitudeSquared()
 	{
 		return (a * a) + (b * b);
+	}
+	
+	public String toString()
+	{
+		return "(" + a + ", " + b + ")";
 	}
 }

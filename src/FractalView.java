@@ -4,23 +4,50 @@ import javafx.scene.paint.Color;
 
 public class FractalView extends ImageView
 {	
-	private int width, height;
-	private Complex topLeft, bottomRight;
+	private final int width, height;
+	private int maxIterations;
+	private Complex topLeft, centre, bottomRight, range;
 	
-	public FractalView(int width, int height, Complex topLeft, Complex bottomRight)
+	public FractalView(int width, int height, Complex topLeft, Complex bottomRight, int defaultMaxIterations)
 	{
 		this.width = width;
 		this.height = height;
 		this.topLeft = topLeft;
 		this.bottomRight = bottomRight;
+		maxIterations = defaultMaxIterations;
+		centre = new Complex();
+		
+		final var centreX = width >> 1;
+		final var centreY = height >> 1;
+		setOnMouseClicked(event -> {
+			if (event.isShiftDown())
+			{
+				final var scaleX  = (centreX - event.getX()) / width;
+				final var scaleY  = (centreY - event.getY()) / height;
+				centre.setReal(centre.getReal() + (range.getReal() * scaleX));
+				centre.setImaginary(centre.getImaginary() + (range.getImaginary() * scaleY));
+				
+				topLeft.setReal(centre.getReal() + (range.getReal() / 2.0));
+				topLeft.setImaginary(centre.getImaginary() + (range.getImaginary() / 2.0));
+				
+				bottomRight.setReal(centre.getReal() - (range.getReal() / 2.0));
+				bottomRight.setImaginary(centre.getImaginary() - (range.getImaginary() / 2.0));
+				
+				draw(maxIterations);
+			}
+		});
+		
+		draw(defaultMaxIterations);
 	}
 	
 	public final void draw(final int maxIterations)
 	{
+		this.maxIterations = maxIterations;
+		range = topLeft.subtract(bottomRight);
+
 		var image = new WritableImage(width, height);
 		var pixelWriter = image.getPixelWriter();
 		
-		var range = topLeft.subtract(bottomRight);
 		var cxStep =  Math.abs(range.getReal() / width);
 		var cyStep = -Math.abs(range.getImaginary() / height);
 		var c = new Complex(topLeft.getReal(), topLeft.getImaginary());

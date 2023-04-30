@@ -31,8 +31,7 @@ public class Mandelbrot extends Application
 		//
 		
 		var fractalPane = new Pane();
-		var fractalView = new FractalView(WIDTH, HEIGHT, TOP_LEFT, BOTTOM_RIGHT);
-		fractalView.draw(DEFAULT_MAX_ITERATIONS);
+		var fractalView = new FractalView(WIDTH, HEIGHT, TOP_LEFT, BOTTOM_RIGHT, DEFAULT_MAX_ITERATIONS);
 		fractalPane.getChildren().add(fractalView);
 		layoutPane.setCenter(fractalPane);
 		
