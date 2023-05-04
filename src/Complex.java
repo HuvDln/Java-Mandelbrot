@@ -62,11 +62,13 @@ public class Complex
 	
 	public Complex addReal(double real)
 	{
+		a = a + real;
 		return new Complex((a + real), b);
 	}
 	
 	public Complex addImaginary(double imaginary)
 	{
+		b = b + imaginary;
 		return new Complex(a, (b + imaginary));
 	}
 	

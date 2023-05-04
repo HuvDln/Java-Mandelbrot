@@ -16,6 +16,7 @@ public class FractalView extends ImageView
 		this.bottomRight = bottomRight;
 		maxIterations = defaultMaxIterations;
 		centre = new Complex();
+		range = new Complex();
 		
 		final var centreX = width >> 1;
 		final var centreY = height >> 1;
@@ -24,12 +25,12 @@ public class FractalView extends ImageView
 			{
 				final var scaleX  = (centreX - event.getX()) / width;
 				final var scaleY  = (centreY - event.getY()) / height;
+				
 				centre.setReal(centre.getReal() + (range.getReal() * scaleX));
 				centre.setImaginary(centre.getImaginary() + (range.getImaginary() * scaleY));
 				
 				topLeft.setReal(centre.getReal() + (range.getReal() / 2.0));
 				topLeft.setImaginary(centre.getImaginary() + (range.getImaginary() / 2.0));
-				
 				bottomRight.setReal(centre.getReal() - (range.getReal() / 2.0));
 				bottomRight.setImaginary(centre.getImaginary() - (range.getImaginary() / 2.0));
 				
@@ -43,7 +44,9 @@ public class FractalView extends ImageView
 	public final void draw(final int maxIterations)
 	{
 		this.maxIterations = maxIterations;
-		range = topLeft.subtract(bottomRight);
+		
+		range.setReal(topLeft.getReal() - bottomRight.getReal());
+		range.setImaginary(topLeft.getImaginary() - bottomRight.getImaginary());
 
 		var image = new WritableImage(width, height);
 		var pixelWriter = image.getPixelWriter();
@@ -66,14 +69,25 @@ public class FractalView extends ImageView
 				var colour = chooseColour(iterations, maxIterations);
 				pixelWriter.setColor(x, y, colour);
 				
-				c = c.addReal(cxStep);
+				c.addReal(cxStep);
 			}
 			
-			c = c.setReal(topLeft.getReal());
-			c = c.addImaginary(cyStep);
+			c.setReal(topLeft.getReal());
+			c.addImaginary(cyStep);
 		}
 		
 		setImage(image);
+	}
+	
+	public void zoom(final double zoomFactor)
+	{
+		topLeft.setReal(centre.getReal() + zoomFactor * range.getReal() / 2.0);
+		topLeft.setImaginary(centre.getImaginary() + zoomFactor * range.getImaginary() / 2.0);
+		
+		bottomRight.setReal(centre.getReal() - zoomFactor * range.getReal() / 2.0);
+		bottomRight.setImaginary(centre.getImaginary() - zoomFactor * range.getImaginary() / 2.0);
+				
+		draw(maxIterations);
 	}
 	
 	private final Color chooseColour(final int iterations, final int maxIterations)

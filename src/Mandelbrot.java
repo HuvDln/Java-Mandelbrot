@@ -46,8 +46,8 @@ public class Mandelbrot extends Application
 		var iterationsTf = new TextField(Integer.toString(DEFAULT_MAX_ITERATIONS));
 		iterationsTf.setFocusTraversable(false);
 		
-		var drawBtn = new Button("Draw");
- 		drawBtn.setOnAction(event -> {
+		var refreshBtn = new Button("Refresh");
+ 		refreshBtn.setOnAction(event -> {
 			try
 			{
 				final var iterations = Integer.parseInt(iterationsTf.getText().trim());
@@ -59,7 +59,12 @@ public class Mandelbrot extends Application
 			}
 		});
 		
-		controlPane.getChildren().addAll(iterationsLabel, iterationsTf, drawBtn);
+		var zoomInBtn = new Button("Zoom In");
+		zoomInBtn.setOnAction(event -> {
+			fractalView.zoom(0.75);
+		});
+		
+		controlPane.getChildren().addAll(iterationsLabel, iterationsTf, refreshBtn, zoomInBtn);
 		layoutPane.setBottom(controlPane);
 		
 		primaryStage.setScene(new Scene(layoutPane));
