@@ -1,4 +1,5 @@
 import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
@@ -7,6 +8,7 @@ public class FractalView extends ImageView
 	private final int width, height;
 	private int maxIterations;
 	private Complex topLeft, centre, bottomRight, range;
+	private boolean busy;
 	
 	public FractalView(int width, int height, Complex topLeft, Complex bottomRight, int defaultMaxIterations)
 	{
@@ -17,11 +19,12 @@ public class FractalView extends ImageView
 		maxIterations = defaultMaxIterations;
 		centre = new Complex();
 		range = new Complex();
+		busy = false;
 		
 		final var centreX = width >> 1;
 		final var centreY = height >> 1;
 		setOnMouseClicked(event -> {
-			if (event.isShiftDown())
+			if (event.isShiftDown() && !busy)
 			{
 				final var scaleX  = (centreX - event.getX()) / width;
 				final var scaleY  = (centreY - event.getY()) / height;
@@ -42,6 +45,81 @@ public class FractalView extends ImageView
 	}
 	
 	public final void draw(final int maxIterations)
+	{
+		busy = true;
+		this.maxIterations = maxIterations;
+		
+		range.setReal(topLeft.getReal() - bottomRight.getReal());
+		range.setImaginary(topLeft.getImaginary() - bottomRight.getImaginary());
+
+		final var image = new WritableImage(width, height);
+		final var pixelWriter = image.getPixelWriter();
+		
+		final var cxStep =  Math.abs(range.getReal() / width);
+		final var cyStep = -Math.abs(range.getImaginary() / height);
+//		var c = new Complex(topLeft.getReal(), topLeft.getImaginary());
+		
+		final var sliceHeight = height >> 3;
+		final var cpu = new Thread[8];
+		for (var slice = 0; slice < 8; slice++)
+		{
+			final var yStart = slice * sliceHeight;
+			final var yEnd = yStart + sliceHeight;
+			cpu[slice] = new Thread(() -> drawSlice(yStart, yEnd, cxStep, cyStep, pixelWriter));
+			cpu[slice].start();
+		}
+		
+		for (var slice = 0; slice < 8; slice++)
+		{
+			try
+			{
+				cpu[slice].join();
+			}
+			catch(final InterruptedException ignored)
+			{
+			}
+		}
+		
+		setImage(image);
+		busy = false;
+	}
+	
+	public final void drawSlice(final int yStart, final int yEnd, final double cxStep, final double cyStep, final PixelWriter pixelWriter)
+	{
+		var c = new Complex(topLeft.getReal(), topLeft.getImaginary() + ((double)yStart * cyStep));
+		for (int y = yStart; y < yEnd; y++)
+		{
+			for (int x = 0; x < width; x++)
+			{	
+				var z = new Complex();
+				var iterations = maxIterations;
+				while ((z.magnitudeSquared() < 4.0) && (iterations > 0))
+				{
+					z = z.square().add(c);
+					iterations--;
+				}
+				
+				var colour = chooseColour(iterations, maxIterations);
+				pixelWriter.setColor(x, y, colour);
+				
+				c.addReal(cxStep);
+			}
+			
+			c.setReal(topLeft.getReal());
+			c.addImaginary(cyStep);
+		}
+	}
+	
+	public final boolean isBusy()
+	{
+		return busy;
+	}
+	
+	//
+	// original, non thread draw method
+	//
+	
+/*	public final void draw(final int maxIterations)
 	{
 		this.maxIterations = maxIterations;
 		
@@ -77,7 +155,7 @@ public class FractalView extends ImageView
 		}
 		
 		setImage(image);
-	}
+	} */
 	
 	public void zoom(final double zoomFactor)
 	{

@@ -18,6 +18,8 @@ public class Mandelbrot extends Application
 	private static final int DEFAULT_MAX_ITERATIONS = 70;
 	private static final Complex TOP_LEFT = new Complex(-RADIUS, RADIUS * ASPECT_RATIO);
 	private static final Complex BOTTOM_RIGHT = new Complex(RADIUS, -RADIUS * ASPECT_RATIO);
+	private static final double ZOOM_IN_FACTOR = 0.75;
+	private static final double ZOOM_OUT_FACTOR = 1.0 / ZOOM_IN_FACTOR;
 	
 	public void start(Stage primaryStage)
 	{
@@ -48,6 +50,8 @@ public class Mandelbrot extends Application
 		
 		var refreshBtn = new Button("Refresh");
  		refreshBtn.setOnAction(event -> {
+			if (fractalView.isBusy()) return;
+			
 			try
 			{
 				final var iterations = Integer.parseInt(iterationsTf.getText().trim());
@@ -61,10 +65,19 @@ public class Mandelbrot extends Application
 		
 		var zoomInBtn = new Button("Zoom In");
 		zoomInBtn.setOnAction(event -> {
-			fractalView.zoom(0.75);
+			if (fractalView.isBusy()) return;
+			
+			fractalView.zoom(ZOOM_IN_FACTOR);
 		});
 		
-		controlPane.getChildren().addAll(iterationsLabel, iterationsTf, refreshBtn, zoomInBtn);
+		var zoomOutBtn = new Button("Zoom Out");
+		zoomOutBtn.setOnAction(event ->{
+			if (fractalView.isBusy()) return;
+			
+			fractalView.zoom(ZOOM_OUT_FACTOR);
+		});
+		
+		controlPane.getChildren().addAll(iterationsLabel, iterationsTf, refreshBtn, zoomInBtn, zoomOutBtn);
 		layoutPane.setBottom(controlPane);
 		
 		primaryStage.setScene(new Scene(layoutPane));
